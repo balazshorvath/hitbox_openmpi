@@ -5,7 +5,7 @@ CFLAGS=-I./include
 
 build:bin/main
 
-bin/main: bin main.c
+bin/main: bin main.c include/hitbox.h
 	$(CC) $(CFLAGS) -o bin/main main.c
 
 bin:
