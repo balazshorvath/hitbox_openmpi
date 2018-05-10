@@ -28,7 +28,7 @@ struct _area {
 };
 struct _world {
 	// Total width, height of the world, narea is the number of areas, narea_w is the number of areas in one row
-	uint32_t w, h, narea, narea_width;
+	uint32_t w, h, narea, narea_width; 
 	Area* areas;
 };
 
@@ -52,8 +52,38 @@ inline uint8_t collide(Circle* c1, Circle* c2) {
 * The result is built with the directives OVERLAP_*.
 */
 uint8_t touches_neighbours(World* w, Circle* c){
+	uint8_t result = 0;
 	Area a = w->areas[c->area_index];
-	if(a.x
+	// "Left"
+	// circle - radius is smaller than the area
+	if(a.x <= (c->x - c->r)){
+		result |= OVERLAP_NEGATIVE_X;
+	}
+	// "Right"
+	// circle + radius is bigger than area + width
+	if((a.x + a.w) >= (c->x + c->r)) {
+		result |= OVERLAP_POSITIVE_X;
+	}
+	// "Down"
+	//
+	if((a.h + a.y) >= (c->y + c->r)) {
+		result |= OVERLAP_POSITIVE_Y;
+	}
+	// "Up"
+	//
+	if(a.y <= (c->y - c->r)) {
+		result |= OVERLAP_NEGATIVE_Y;
+	}
+	// For diagonal overlaps, calculate the distance between the corners of the area and the circle
+	// "Up-left"
+	// Only if up and left are true
+	if(result & (OVERLAP_NEGATIVE_X + OVERLAP_NEGATIVE_Y) == (OVERLAP_NEGATIVE_X + OVERLAP_NEGATIVE_Y)){
+		double x = a.x - c->x;
+		double y = a.y - c->y;
+		if(sqrt(x*x + y*y) <= c->r) {
+			result |= OVERLAP_NX_NY;
+		}
+	}
 }
 
 
