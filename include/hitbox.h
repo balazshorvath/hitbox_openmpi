@@ -84,6 +84,33 @@ uint8_t touches_neighbours(World* w, Circle* c){
 			result |= OVERLAP_NX_NY;
 		}
 	}
+	// "Up-right"
+	// Only if up and right are true
+	if(result & (OVERLAP_POSITIVE_X + OVERLAP_NEGATIVE_Y) == (OVERLAP_POSITIVE_X + OVERLAP_NEGATIVE_Y)){
+		double x = a.x + a.w - c->x;
+		double y = a.y - c->y;
+		if(sqrt(x*x + y*y) <= c->r) {
+			result |= OVERLAP_PX_NY;
+		}
+	}
+	// "Down-right"
+	// Only if down and right are true
+	if(result & (OVERLAP_POSITIVE_X + OVERLAP_POSITIVE_Y) == (OVERLAP_POSITIVE_X + OVERLAP_POSITIVE_Y)){
+		double x = a.x + a.w - c->x;
+		double y = a.y + a.h - c->y;
+		if(sqrt(x*x + y*y) <= c->r) {
+			result |= OVERLAP_PX_PY;
+		}
+	}
+	// "Down-left"
+	// Only if down and left are true
+	if(result & (OVERLAP_NEGATIVE_X + OVERLAP_POSITIVE_Y) == (OVERLAP_NEGATIVE_X + OVERLAP_POSITIVE_Y)){
+		double x = a.x - c->x;
+		double y = a.y + a.h - c->y;
+		if(sqrt(x*x + y*y) <= c->r) {
+			result |= OVERLAP_NX_PY;
+		}
+	}
 }
 
 
