@@ -1,6 +1,6 @@
 CC=mpiCC
 MPIRUN=mpirun
-MPIOPTS=-n 2
+MPIOPTS=-n 4
 CFLAGS=-I./include
 
 build:bin/main
