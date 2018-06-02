@@ -49,33 +49,46 @@ void categorize_circles(){
 	if(to > ncircles){
 		to = ncircles;
 	}
+	printf("from %d, to %d.\n", from, to);
 	for(int i = from; i < to; i++){
 		circles[i].area_index = get_area_id(&world, &circles[i]);
 		//printf("Circle %d belongs to the area %d.\n", circles[i].id, circles[i].area_index);
 	}
 
-	uint32_t msg[2];
+	uint32_t *msg;
 	if(pid == 0){
-		uint32_t collectCount = ncircles - delta;
+		uint32_t collectAmount;
 		log("Collecting results.");
-
-		for(int i = 0; i < collectCount; i++){
-			MPI_Recv(msg, 2, MPI_UINT32_T, MPI_ANY_SOURCE, 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			for(int j = 0; j < ncircles; j++){
-				if(circles[j].id == msg[0]){
-					circles[j].area_index = msg[1];
-					break;
+		for(int i = 1; i < nproc; i++){
+			to = (i + 1) * delta;
+			from = i * delta;
+			if(to > ncircles){
+				to = ncircles;
+			}
+			collectAmount = to - from;
+			msg = (uint32_t*) malloc(collectAmount * 2 * sizeof(uint32_t));
+			MPI_Recv(msg, collectAmount * 2, MPI_UINT32_T, i, 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			for(int x = 0; x < collectAmount; x += 2){
+				for(int j = 0; j < ncircles; j++){
+					if(circles[j].id == msg[x]){
+						circles[j].area_index = msg[x + 1];
+						break;
+					}
 				}
 			}
+			free(msg);
 		}
 		log("Collecting finished.");
 	}else {
 		log("Sending results.");
-		for(int i = from; i < to; i++){
-			msg[0] = circles[i].id;
-			msg[1] = circles[i].area_index;
-			MPI_Send(msg, 2, MPI_UINT32_T, 0, 10, MPI_COMM_WORLD);
+		uint32_t sendAmount = to - from;
+		msg = (uint32_t*) malloc(sendAmount * 2 * sizeof(uint32_t));
+		for(int i = from, x = 0; i < to; i++, x++){
+			msg[x] = circles[i].id;
+			msg[x + 1] = circles[i].area_index;
 		}
+		MPI_Send(msg, sendAmount * 2, MPI_UINT32_T, 0, 10, MPI_COMM_WORLD);
+		free(msg);
 		log("Sending finished.");
 	}
 }

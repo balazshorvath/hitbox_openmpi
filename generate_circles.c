@@ -11,7 +11,9 @@ int main(){
     int i;
     FILE* fd = fopen("circle.csv", "w");
     srand(time(NULL));
-    for(i = 0; i < 10000; i++){
+    int count = 100000;
+    fprintf(fd, "%d\n", count);
+    for(i = 0; i < count; i++){
         double x, y, r;
         x = double_rand(0.0, 10000.0);
         y = double_rand(0.0, 10000.0);
